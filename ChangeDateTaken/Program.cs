@@ -1,5 +1,6 @@
 ﻿using ExifLibrary;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 Console.WriteLine("Enter your path: ");
 string name = Console.ReadLine();
@@ -15,9 +16,8 @@ foreach (var item in files)
         continue;
     }
     // step 3: write date taken to image
-    PhotoData photoData = JsonConvert.DeserializeObject<PhotoData>(jsonFile);
-
-    long photoTakenTimestamp = photoData.PhotoTakenTime.Timestamp;
+    JObject jsonObject = JObject.Parse(jsonFile);
+    long photoTakenTimestamp = (long)jsonObject["photoTakenTime"]["timestamp"];
     DateTime photoTakenDateTime = DateTimeOffset.FromUnixTimeSeconds(photoTakenTimestamp).UtcDateTime;
   
     var file = ImageFile.FromFile(item);
@@ -27,15 +27,3 @@ foreach (var item in files)
     // step 4: save image
     file.Save(item);
 }
-
-public class PhotoData
-{
-    public PhotoTakenTime PhotoTakenTime { get; set; }
-}
-
-public class PhotoTakenTime
-{
-    public long Timestamp { get; set; }
-}
-
-
